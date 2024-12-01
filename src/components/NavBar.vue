@@ -19,8 +19,8 @@ onMounted(() => {
 <template>
   <!-- <nav class="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-md"> -->    
   <nav :class="['fixed w-full z-50 transition-all duration-300', isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4' ]">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="flex justify-between items-center h-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center">
         <div :class="['text-xl font-bold', isScrolled ? 'text-gray-800' : 'text-white']">Gállné Busai Barbara</div>
         
         <div class="hidden md:flex space-x-8">

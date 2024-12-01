@@ -16,10 +16,10 @@ import { Award } from 'lucide-vue-next';
             Fontosak számomra az emberi kapcsolatok, a minőségi kommunikáció és a felmerülő problémák megoldása. 
             Specializációm az emberek közötti kapcsolat- és bizalomépítés, ahol segítek a feleknek közös megoldást találni, és ezzel segítem Isten országának építését.
           </p>
-          <p class="text-lg text-justify text-gray-600 mb-6">
+          <!-- <p class="text-lg text-justify text-gray-600 mb-6">
             Specializációim közé tartozik a családi mediáció, üzleti konfliktusok kezelése és 
             munkajogi viták rendezése.
-          </p>
+          </p> -->
           <ul class="space-y-3">
             <li class="flex items-center">
               <Award class="w-6 h-6 text-blue-600" />
