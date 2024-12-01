@@ -1,4 +1,7 @@
 <script setup>
+import imgURL from '../assets/img/hero-bg.jpg';
+
+const bgImage = `url(${imgURL})`;
 const services = [
   {
     title: 'Mediáció',
@@ -21,7 +24,8 @@ const services = [
 
 <template>
   <div id="services" class="min-h-screen flex items-center relative py-20">
-    <div class="absolute inset-0 parallax bg-[url('/images/hero-bg.jpg')]"></div>
+    <!-- <div class="absolute inset-0 parallax bg-[url('/assets/img/hero-bg.jpg')]"></div> -->
+    <div :style="{ backgroundImage: bgImage }" class="absolute inset-0 parallax"></div>
     <div class="parallax-overlay"></div>
     <div class="relative z-10 max-w-7xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-white text-center mb-16">Szolgáltatások</h2>

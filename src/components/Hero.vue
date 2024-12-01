@@ -1,9 +1,13 @@
 <script setup>
 import { ArrowDown } from 'lucide-vue-next';
+import imgURL from '../assets/img/hero-bg.jpg';
+
+const bgImage = `url(${imgURL})`;
+
 </script>
 <template>
   <div id="home" class="min-h-screen flex items-center justify-center text-center relative">
-    <div class="absolute inset-0 parallax bg-[url('/images/hero-bg.jpg')]"></div>
+    <div :style="{ backgroundImage: bgImage }" class="absolute inset-0 parallax"></div>
     <div class="parallax-overlay"></div>
     <div class="relative z-10 text-white text-center px-4">
           <h1 class="text-5xl md:text-7xl font-bold mb-6">Mediáció és konfliktuskezelés</h1>

@@ -1,5 +1,6 @@
 <script setup>
 import { Award } from 'lucide-vue-next';
+import imgURL from '/src/assets/img/mediator.jpg';
 </script>
 
 <template>
@@ -7,7 +8,7 @@ import { Award } from 'lucide-vue-next';
     <div class="max-w-7xl mx-auto px-4">
       <div class="grid md:grid-cols-2 gap-12 items-center">
         <div>
-          <img src="/images/mediator.jpg" alt="Mediátor" class="rounded-lg shadow-xl">
+          <img :src="imgURL" alt="Mediátor" class="rounded-lg shadow-xl">
         </div>
         <div>
           <h2 class="text-4xl font-bold text-gray-900 mb-6">Rólam</h2>
