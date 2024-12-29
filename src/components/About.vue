@@ -1,6 +1,12 @@
 <script setup>
 import { Award } from 'lucide-vue-next';
 import imgURL from '/src/assets/img/mediator.jpg';
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true
+  }
+});
 </script>
 
 <template>
@@ -11,11 +17,12 @@ import imgURL from '/src/assets/img/mediator.jpg';
           <img :src="imgURL" alt="Mediátor" class="rounded-lg shadow-xl">
         </div>
         <div>
-          <h2 class="text-4xl font-bold text-gray-900 mb-6">Rólam</h2>
+          <h2 class="text-4xl font-bold text-gray-900 mb-6">{{ data.title }}</h2>
           <p class="text-lg text-justify text-gray-600 mb-6">
-            Gállné Busai Barbara vagyok. Keresztény, feleség, mediátor, alternatív vitarendező. 
+            <!-- Gállné Busai Barbara vagyok. Keresztény, feleség, mediátor, alternatív vitarendező. 
             Fontosak számomra az emberi kapcsolatok, a minőségi kommunikáció és a felmerülő problémák megoldása. 
-            Specializációm az emberek közötti kapcsolat- és bizalomépítés, ahol segítek a feleknek közös megoldást találni, és ezzel segítem Isten országának építését.
+            Specializációm az emberek közötti kapcsolat- és bizalomépítés, ahol segítek a feleknek közös megoldást találni, és ezzel segítem Isten országának építését. -->
+            {{ data.description }}
           </p>
           <!-- <p class="text-lg text-justify text-gray-600 mb-6">
             Specializációim közé tartozik a családi mediáció, üzleti konfliktusok kezelése és 

@@ -1,0 +1,26 @@
+{
+  "hero": {
+    "title": "Mediáció és konfliktuskezelés",
+    "subtitle": "A bizalom csodákat tesz"
+  },
+  "about": {
+    "title": "Rólam",
+    "description": "Gállné Busai Barbara vagyok. Keresztény, feleség, mediátor, alternatív vitarendező. Fontosak számomra az emberi kapcsolatok, a minőségi kommunikáció és a felmerülő problémák megoldása. Specializációm az emberek közötti kapcsolat- és bizalomépítés, ahol segítek a feleknek közös megoldást találni, és ezzel segítem Isten országának építését."
+  },
+  "services": [
+    {
+      "id": 1,
+      "title": "Mediáció",
+      "description": "Konfliktusok megoldása, közvetítés a felek között"
+    },
+    {
+      "id": 2,
+      "title": "Service 2",
+      "description": "Description for service 2"
+    }
+  ],
+  "footer": {
+    "copyright": "© 2025 Gállné Busai Barbara - Minden jog fenntartva",
+    "text": "Akkreditált mediátor | Konfliktuskezelési szakértő"
+  }
+}
