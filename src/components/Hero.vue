@@ -4,7 +4,7 @@ import imgURL from '../assets/img/hero-bg.jpg';
 
 const props = defineProps({
   data: {
-    type: Array,
+    type: Object,
     required: true
   }
 });
