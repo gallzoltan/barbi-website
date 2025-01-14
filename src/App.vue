@@ -8,7 +8,7 @@ import Contact from './components/Contact.vue'
 import Footer from './components/Footer.vue'
 
 const heroData = ref({});
-const aboutData = ref({});
+const aboutData = ref([]);
 const servicesData = ref([]);
 const footerData = ref({});
 

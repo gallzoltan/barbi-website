@@ -1,6 +1,7 @@
 <script setup>
 import { ArrowDown } from 'lucide-vue-next';
-import imgURL from '../assets/img/hero-bg.jpg';
+import imgBg from '/assets/img/cloud-bg.jpg';
+import imgMediator from '/assets/img/mediator.jpg';
 
 const props = defineProps({
   data: {
@@ -8,7 +9,7 @@ const props = defineProps({
     required: true
   }
 });
-const bgImage = `url(${imgURL})`;
+const bgImage = `url(${imgBg})`;
 
 </script>
 <template>
@@ -16,9 +17,32 @@ const bgImage = `url(${imgURL})`;
     <div :style="{ backgroundImage: bgImage }" class="absolute inset-0 parallax"></div>
     <div class="parallax-overlay"></div>
     <div class="relative z-10 text-white text-center px-4">
-          <h1 class="text-5xl md:text-7xl font-bold mb-6">{{ data.title }}</h1>
-          <p class="text-xl md:text-2xl mb-8">{{ data.subtitle }}</p>
-          <ArrowDown class="w-8 h-8 mx-auto animate-bounce" />
+      <div class="max-w-7xl mx-auto px-4">
+        <!-- <h1 class="text-5xl md:text-7xl font-bold mb-6">{{ data.title }}</h1>
+        <p class="text-xl md:text-2xl mb-8">{{ data.subtitle }}</p>
+        <ArrowDown class="w-8 h-8 mx-auto animate-bounce" /> -->
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <img :src="imgMediator" alt="Mediátor" class="rounded-lg shadow-xl">
+          </div>
+          <div>
+            <h2 class="text-4xl font-bold mb-6">"{{ data.title }}" </h2><!-- <span class="text-4xl">{{ data.subtitle }}</span> -->
+            <p class="text-lg text-justify mb-6">
+              {{ data.p1 }}
+            </p>
+            <p class="text-lg text-justify mb-6">
+              {{ data.p2 }}
+            </p>
+            <!-- <ul class="space-y-3">
+              <li class="flex items-center">
+                <Award class="w-6 h-6 text-blue-600" />
+                <span class="text-gray-700">Akkreditált Mediátor</span>
+              </li>
+            </ul> -->
+            <ArrowDown class="w-8 h-8 mx-auto animate-bounce" />
+          </div>
         </div>
+      </div>      
+    </div>
   </div>
 </template>

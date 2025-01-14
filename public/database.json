@@ -1,26 +1,73 @@
 {
   "hero": {
-    "title": "Mediáció és konfliktuskezelés",
-    "subtitle": "A bizalom csodákat tesz"
+    "title": "A bizalom csodákat tesz.",
+    "subtitle": "Lisieuxi Szent Teréz",
+    "p1": "Gállné Busai Barbara vagyok. Istenhívő, feleség, a Szent András Evangelizációs Alapítvány vezetője, vitarendező és az Áldott királylányok program elindítója vagyok.",
+    "p2": "Kiemelkedően fontos számomra a keresztény konfliktusmegoldás és a nők felé való szolgálat."
   },
   "about": {
-    "title": "Rólam",
-    "description": "Gállné Busai Barbara vagyok. Keresztény, feleség, mediátor, alternatív vitarendező. Fontosak számomra az emberi kapcsolatok, a minőségi kommunikáció és a felmerülő problémák megoldása. Specializációm az emberek közötti kapcsolat- és bizalomépítés, ahol segítek a feleknek közös megoldást találni, és ezzel segítem Isten országának építését."
+    "title": "Tanulmányaim",
+    "main_educations": [
+      {
+        "id": 1,
+        "title": "2014 – 2015: mediátor-alternatív vitarendező",
+        "description": "Budapesti Kommunikációs és Üzleti Főiskola"
+      },
+      {
+        "id": 2,
+        "title": "1996 – 2002: művelődési és felnőttképzési menedzser",
+        "description": "Pécsi Tudományegyetem"
+      },
+      {
+        "id": 3,
+        "title": "1992 – 1995: katolikus hitoktató",
+        "description": "Érseki Hittudományi Főiskola, Esztergom"
+      }
+    ],
+    "other_educations": [
+      {
+        "id": 1,
+        "title": "2017 – 2018: Közösségfejlesztő képzés",
+        "description": "NCD Hungary"
+      },
+      {
+        "id": 2,
+        "title": "2013 – 2015: 250 órás pszichodráma és bibliodráma csoport",
+        "description": "Nyáry Péter vezetésével"
+      },
+      {
+        "id": 3,
+        "title": "2011: mentorképzés",
+        "description": "Budapest Főváros Kormányhivatalának Igazságügyi Szolgálata"
+      },
+      {
+        "id": 4,
+        "title": "2005 – 2007: táncterapeuta",
+        "description": "Integrált Kifejezés és Táncterápiás Központ"
+      },
+      {
+        "id": 5,
+        "title": "2003 – 2005: mediátor és tréner",
+        "description": "Partners Hungary Alapítvány"
+      }
+    ]
   },
   "services": [
     {
       "id": 1,
-      "title": "Mediáció",
-      "description": "Konfliktusok megoldása, közvetítés a felek között"
+      "title": "Boldogok a békességszerzők lelki hétvége",
+      "description": "2020-ban, a covid idején nagy hatással volt rám Ken Sande Béketeremtők című könyve, ami a konfliktuskezelés bibliai alapjait írja le. A könyv arra inspirált, hogy a mediációs tanulmányaimat egészítsem ki a Jézusi konfliktusmegoldás Szentírásban található elveivel. Ennek következtében született meg a Boldogok a békességszerzők című lelki tréning Nagy Zsolt együttműködésével.",
+      "description2": "Programunk célja: a Jézusi konfliktusmegoldás módszerének elsajátításával fejlődni a konfliktushelyzetek megoldásában. A konfliktus, mint lehetőség felfedeztetése a résztvevőkkel.Dicsőítés, ima, tanítások, kiscsoportos beszélgetések, tanúságtételek a hétvége részei."
     },
     {
       "id": 2,
-      "title": "Service 2",
-      "description": "Description for service 2"
+      "title": "Krízis és kegyelem lelki hétvége",
+      "description": "2024-ben Jeges Mirjam kármelita nővér Megtérésről megtérésre című könyve inspirált bennünket egy újabb lelki hétvége megírására Krízis és kegyelem címmel.",
+      "description2": "Ez a program lehetőséget biztosít egy mélyebb megtérésre, egy intenzívebb önátadásra Istennek. Reménységközpontú szemléletváltásra hívnak az elhangzó előadások, hogy a krízis közepette is tudjunk Istenben, Istennel maradni, befogadni az Ő gyógyító, szabadító jelenlétét, kegyelmét. A hétvége során tanítások, tanúságtételek, kiscsoportos beszélgetések, egyéni és közösségi imák adnak lehetőséget erre."
     }
   ],
   "footer": {
-    "copyright": "© 2025 Gállné Busai Barbara - Minden jog fenntartva",
-    "text": "Akkreditált mediátor | Konfliktuskezelési szakértő"
+    "copyright": "© 2025 Gállné Busai Barbara",
+    "text": "Telefon: +36 30 413 5685"
   }
 }

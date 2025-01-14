@@ -4,9 +4,9 @@ IMAGE_NAME = vnode18
 HOST_PORT = 5173
 CONTAINER_PORT = 5173
 
-.PHONY: vnode18
+.PHONY: venv
 
-vnode18:
+venv:
 	podman run --rm -it\
 	 --name $(CONTAINER_NAME)\
 	 -v $(CURRENT_DIR):/home/app\
