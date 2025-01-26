@@ -4,12 +4,15 @@ import NavBar from './components/NavBar.vue'
 import Hero from './components/Hero.vue'
 import About from './components/About.vue'
 import Services from './components/Services.vue'
+import Princesses from './components/Princesses.vue';
+import Currents from './components/Currents.vue';
 import Contact from './components/Contact.vue'
 import Footer from './components/Footer.vue'
 
 const heroData = ref({});
 const aboutData = ref([]);
 const servicesData = ref([]);
+const contactData = ref({});
 const footerData = ref({});
 
 onMounted(async () => {
@@ -17,7 +20,8 @@ onMounted(async () => {
   const data = await response.json();
   heroData.value = data.hero;
   aboutData.value = data.about;
-  servicesData.value = data.services;  
+  servicesData.value = data.services; 
+  contactData.value = data.contact; 
   footerData.value = data.footer;
 });
 </script>
@@ -27,6 +31,8 @@ onMounted(async () => {
   <Hero :data="heroData"/>
   <About :data="aboutData"/>
   <Services :data="servicesData"/>
-  <Contact />
+  <Princesses />
+  <Currents />
+  <Contact :data="contactData"/>
   <Footer :data="footerData"/>
 </template>

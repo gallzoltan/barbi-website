@@ -27,8 +27,8 @@ onMounted(() => {
           <a href="#home" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Kezdőlap</a>
           <a href="#about" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Rólam</a>
           <a href="#services" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Keresztény konfliktusmegoldás</a>
-          <a href="#queens" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Áldott Királylányok</a>
-          <a href="#programs" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Aktuális programok</a>
+          <a href="#princesses" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Áldott Királylányok</a>
+          <a href="#currents" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Aktuális</a>
           <a href="#contact" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Kapcsolat</a>
         </div>
 
@@ -46,8 +46,8 @@ onMounted(() => {
         <a href="#home" class="block px-3 py-2 text-gray-600 hover:text-gray-900">Kezdőlap</a>
         <a href="#about" class="block px-3 py-2 text-gray-600 hover:text-gray-900">Rólam</a>
         <a href="#services" class="block px-3 py-2 text-gray-600 hover:text-gray-900">Keresztény konfliktusmegoldás</a>
-        <a href="#queens" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Áldott Királylányok</a>
-        <a href="#programs" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Aktuális programok</a>
+        <a href="#princesses" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Áldott Királylányok</a>
+        <a href="#currents" :class="['hover:opacity-75 transition-opacity', isScrolled ? 'text-gray-800' : 'text-white']">Aktuális</a>
         <a href="#contact" class="block px-3 py-2 text-gray-600 hover:text-gray-900">Kapcsolat</a>
       </div>
     </div>

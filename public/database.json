@@ -7,47 +7,57 @@
   },
   "about": {
     "title": "Tanulmányaim",
+    "main_title": "",
+    "other_title": "Egyéb képzések",
     "main_educations": [
       {
         "id": 1,
-        "title": "2014 – 2015: mediátor-alternatív vitarendező",
+        "date": "2014 – 2015",
+        "title": "Mediátor-alternatív vitarendező",
         "description": "Budapesti Kommunikációs és Üzleti Főiskola"
       },
       {
         "id": 2,
-        "title": "1996 – 2002: művelődési és felnőttképzési menedzser",
+        "date": "1996 – 2002",
+        "title": "Művelődési és felnőttképzési menedzser",
         "description": "Pécsi Tudományegyetem"
       },
       {
         "id": 3,
-        "title": "1992 – 1995: katolikus hitoktató",
+        "date": "1992 – 1995",
+        "title": "Katolikus hitoktató",
         "description": "Érseki Hittudományi Főiskola, Esztergom"
       }
     ],
     "other_educations": [
       {
         "id": 1,
-        "title": "2017 – 2018: Közösségfejlesztő képzés",
+        "date": "2017 – 2018",
+        "title": "Közösségfejlesztő képzés",
         "description": "NCD Hungary"
       },
       {
         "id": 2,
-        "title": "2013 – 2015: 250 órás pszichodráma és bibliodráma csoport",
+        "date": "2013 – 2015",
+        "title": "250 órás pszichodráma és bibliodráma csoport",
         "description": "Nyáry Péter vezetésével"
       },
       {
         "id": 3,
-        "title": "2011: mentorképzés",
+        "date": "2011",
+        "title": "mentorképzés",
         "description": "Budapest Főváros Kormányhivatalának Igazságügyi Szolgálata"
       },
       {
         "id": 4,
-        "title": "2005 – 2007: táncterapeuta",
+        "date": "2005 – 2007",
+        "title": "táncterapeuta",
         "description": "Integrált Kifejezés és Táncterápiás Központ"
       },
       {
         "id": 5,
-        "title": "2003 – 2005: mediátor és tréner",
+        "date": "2003 – 2005",
+        "title": "mediátor és tréner",
         "description": "Partners Hungary Alapítvány"
       }
     ]
@@ -66,6 +76,11 @@
       "description2": "Ez a program lehetőséget biztosít egy mélyebb megtérésre, egy intenzívebb önátadásra Istennek. Reménységközpontú szemléletváltásra hívnak az elhangzó előadások, hogy a krízis közepette is tudjunk Istenben, Istennel maradni, befogadni az Ő gyógyító, szabadító jelenlétét, kegyelmét. A hétvége során tanítások, tanúságtételek, kiscsoportos beszélgetések, egyéni és közösségi imák adnak lehetőséget erre."
     }
   ],
+  "contact": {
+    "p1": "Ha kérdése van, vagy szeretne jelentkezni valamelyik programunkra, kérjük, vegye fel velünk a kapcsolatot az alábbi elérhetőségek valamelyikén:",
+    "p2": "Telefon: +36 30 413 5685",
+    "p3": "E-mail"
+  },
   "footer": {
     "copyright": "© 2025 Gállné Busai Barbara",
     "text": "Telefon: +36 30 413 5685"
