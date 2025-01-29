@@ -76,11 +76,48 @@
       "description2": "Ez a program lehetőséget biztosít egy mélyebb megtérésre, egy intenzívebb önátadásra Istennek. Reménységközpontú szemléletváltásra hívnak az elhangzó előadások, hogy a krízis közepette is tudjunk Istenben, Istennel maradni, befogadni az Ő gyógyító, szabadító jelenlétét, kegyelmét. A hétvége során tanítások, tanúságtételek, kiscsoportos beszélgetések, egyéni és közösségi imák adnak lehetőséget erre."
     }
   ],
+
+  "princesses": [
+    {
+      "id": 1,
+      "title": "Áldott királylányok",
+      "description": "Kifejezetten nők számára szervezett lelki programok.",
+      "topics": [
+        "Család-munka-szolgálat",
+        "Test",
+        "Szégyen és Méltóság",
+        "Harag és megbocsátás"
+      ]
+    }
+  ],
+
+  "currents": [
+    {
+      "id": 1,
+      "title": "Krízis és kegyelem lelki hétvége",
+      "date": "2025. február. 07-09.",
+      "location": "Pécs",
+      "description": "Ez a program lehetőséget biztosít egy mélyebb megtérésre, egy mélyebb önátadásra Istennek. Reménységközpontú szemléletváltásra hívnak az elhangzó előadások, hogy a krízis közepette is tudjunk Istenben, Istennel maradni, befogadni az Ő gyógyító, szabadító jelenlétét, kegyelmét.",
+      "image": "/assets/img/kriziseskegyelem.png",
+      "link": ""
+    },
+    {
+      "id": 2,
+      "title": "Boldogok a békességszerzők",
+      "date": "2025. március 14-16.",
+      "location": "Budapest, Krisztus Király Missziós Központ",
+      "description": "A Jézusi konfliktusmegoldás módszerének elsajátításával fejlődni a konfliktushelyzetek megoldásában. A konfliktus, mint lehetőség felfedeztetése a résztvevőkkel. Dicsőítés, ima, tanítások, kiscsoportos beszélgetések, tanúságtételek a hétvége részei.",
+      "image": "/assets/img/bekessegszerzok.png",
+      "link": "https://forms.gle/MWSbffo76eYyc7wU6"
+    }    
+  ],
+
   "contact": {
     "p1": "Ha kérdése van, vagy szeretne jelentkezni valamelyik programunkra, kérjük, vegye fel velünk a kapcsolatot az alábbi elérhetőségek valamelyikén:",
     "p2": "Telefon: +36 30 413 5685",
     "p3": "E-mail"
   },
+
   "footer": {
     "copyright": "© 2025 Gállné Busai Barbara",
     "text": "Telefon: +36 30 413 5685"

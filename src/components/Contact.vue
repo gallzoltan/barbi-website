@@ -9,28 +9,17 @@ const props = defineProps({
 
 <template>
   <div id="contact" class="py-20 bg-gray-50">
-    <div class="max-w-4xl mx-auto px-4">
-      <h2 class="text-4xl font-bold text-gray-900 text-center mb-12">Kapcsolat</h2>
-      <div class="bg-white rounded-lg shadow-xl p-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <p class="text-gray-700 mb-4">{{ data.p1 }}</p>
-            <p class="text-gray-700 mb-4">{{ data.p2 }}</p>
-            <p class="text-gray-700 mb-4">{{ data.p3 }}</p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Kapcsolat</h2>
+        <div class="max-w-lg mx-auto">
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="text-center">
+              <p class="mb-2">Ha kérdése van, vagy szeretne jelentkezni valamelyik programunkra, kérjük, vegye fel velünk a kapcsolatot az alábbi elérhetőségek valamelyikén:</p>
+              <p class="mb-2"><strong>Email:</strong> info@busaibarbara.hu</p>
+              <p class="mb-2"><strong>Telefon:</strong> +36 30 413 5685</p>
+            </div>
           </div>
-          <!-- <div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Üzenet küldése</h3>
-            <form action="#" method="POST">
-              <div class="grid grid-cols-1 gap-4">
-                <input type="text" name="name" id="name" placeholder="Név" class="p-4 bg-gray-100 rounded-lg w-full">
-                <input type="email" name="email" id="email" placeholder="Email cím" class="p-4 bg-gray-100 rounded-lg w-full">
-                <textarea name="message" id="message" placeholder="Üzenet" class="p-4 bg-gray-100 rounded-lg w-full h-32"></textarea>
-                <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Küldés</button>
-              </div>
-            </form>
-          </div> -->
         </div>
-      </div>  
-    </div>
+      </div>
   </div>
 </template>
