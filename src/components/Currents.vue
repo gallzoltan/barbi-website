@@ -25,7 +25,7 @@ const props = defineProps({
               <p class="text-gray-700">{{ event.description }}</p>
               <template v-if="event.link">
                 A jelentkezéseket legkésőbb március 7-ig várjuk
-                <a :href="event.link" target="_blank" class="text-blue-500 font-semibold mt-4">ezen az ürlapon.</a>
+                <a :href="event.link" target="_blank" class="text-blue-500 font-semibold mt-4">ezen az űrlapon.</a>
               </template>
             </div>
           </div>
