@@ -1,5 +1,5 @@
 <script setup>
-import imgURL from '/assets/img/hero-bg.jpg';
+import imgURL from '/assets/img/bg_conflict.jpg';
 
 const props = defineProps({
   data: {

@@ -77,19 +77,17 @@
     }
   ],
 
-  "princesses": [
-    {
-      "id": 1,
-      "title": "Áldott királylányok",
-      "description": "Kifejezetten nők számára szervezett lelki programok.",
-      "topics": [
-        "Család-munka-szolgálat",
-        "Test",
-        "Szégyen és Méltóság",
-        "Harag és megbocsátás"
-      ]
-    }
-  ],
+  "princesses": {
+    "id": 1,
+    "title": "Áldott királylányok",
+    "description": "Kifejezetten nők számára szervezett lelki programok.",
+    "topics": [
+      "Család-munka-szolgálat",
+      "Test",
+      "Szégyen és Méltóság",
+      "Harag és megbocsátás"
+    ]
+  },
 
   "currents": [
     {

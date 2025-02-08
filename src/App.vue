@@ -12,7 +12,7 @@ import Footer from './components/Footer.vue'
 const heroData = ref({});
 const aboutData = ref([]);
 const servicesData = ref([]);
-const princessesData = ref([]);
+const princessesData = ref({});
 const currentsData = ref([]);
 const contactData = ref({});
 const footerData = ref({});
@@ -32,7 +32,7 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-  <Hero :data="heroData"/>
+  <Hero :data="heroData" />
   <About :data="aboutData"/>
   <Services :data="servicesData"/>
   <Princesses :data="princessesData"/>
