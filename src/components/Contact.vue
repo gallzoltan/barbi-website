@@ -8,9 +8,9 @@ const props = defineProps({
 </script>
 
 <template>
-  <div id="contact" class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Kapcsolat</h2>
+  <div id="contact" class="py-section bg-gray-50">
+    <div class="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Kapcsolat</h2>
         <div class="max-w-lg mx-auto">
           <div class="bg-white p-6 rounded-lg shadow-md">
             <div class="text-center">
