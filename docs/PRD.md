@@ -1709,24 +1709,7 @@ test('user can submit contact form', async ({ page }) => {
 
 **Deliverable:** Működő kapcsolatfelvételi űrlap email értesítésekkel
 
----
-
-#### **Week 5-7: Eseményregisztrációs Rendszer (Phase 1.2)**
-- [ ] `events` és `event_registrations` táblák létrehozása
-- [ ] Meglévő események migrálása JSON-ból DB-be
-- [ ] GET /api/events endpoint
-- [ ] GET /api/events/:slug endpoint
-- [ ] POST /api/events/:slug/register endpoint
-- [ ] Üzleti logika (létszámkorlát, határidő check)
-- [ ] Email sablonok (registration-confirmation)
-- [ ] Frontend EventsList és RegistrationForm komponensek
-- [ ] Admin endpoint: GET /api/admin/events/:id/registrations
-
-**Deliverable:** Teljes eseményregisztrációs rendszer, Google Forms replacement
-
----
-
-#### **Week 8-9: Admin Authentikáció (Phase 1.3)**
+#### **Week 5-6: Admin Authentikáció (Phase 1.2)**
 - [ ] `admin_users` tábla létrehozása
 - [ ] JWT authentikáció implementálása
 - [ ] POST /api/admin/login endpoint
@@ -1739,7 +1722,7 @@ test('user can submit contact form', async ({ page }) => {
 
 ---
 
-#### **Week 10-12: Content Management System (Phase 2.1)**
+#### **Week 7-9: Content Management System (Phase 2.1)**
 - [ ] `content_sections` és `content_history` táblák
 - [ ] Meglévő tartalom migrálása JSON-ból DB-be
 - [ ] GET /api/content/:section endpoint (public)
@@ -1751,9 +1734,20 @@ test('user can submit contact form', async ({ page }) => {
 
 **Deliverable:** Dinamikus tartalom szerkesztés admin felületen
 
----
+#### **Week 10-12: Eseményregisztrációs Rendszer (Phase 2.2)**
+- [ ] `events` és `event_registrations` táblák létrehozása
+- [ ] Meglévő események migrálása JSON-ból DB-be
+- [ ] GET /api/events endpoint
+- [ ] GET /api/events/:slug endpoint
+- [ ] POST /api/events/:slug/register endpoint
+- [ ] Üzleti logika (létszámkorlát, határidő check)
+- [ ] Email sablonok (registration-confirmation)
+- [ ] Frontend EventsList és RegistrationForm komponensek
+- [ ] Admin endpoint: GET /api/admin/events/:id/registrations
 
-#### **Week 13-15: Admin Dashboard (Phase 2.2)**
+**Deliverable:** Teljes eseményregisztrációs rendszer, Google Forms replacement
+
+#### **Week 13-15: Admin Dashboard (Phase 2.3)**
 - [ ] Admin dashboard layout (Vue komponens)
 - [ ] Kapcsolatfelvételi üzenetek listázása
 - [ ] Esemény regisztrációk listázása és kezelése
@@ -1763,9 +1757,7 @@ test('user can submit contact form', async ({ page }) => {
 
 **Deliverable:** Teljes admin dashboard
 
----
-
-#### **Week 16-17: Analitika (Phase 2.3 - Optional)**
+#### **Week 16-17: Analitika (Phase 2.4 - Optional)**
 - [ ] `analytics_events` tábla
 - [ ] Analytics tracking implementálása frontend-en
 - [ ] POST /api/analytics/event endpoint
