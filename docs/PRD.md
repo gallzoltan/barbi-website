@@ -1688,11 +1688,11 @@ test('user can submit contact form', async ({ page }) => {
 ### 12.1 Fázisolt Megvalósítás
 
 #### **Week 1-2: Alapok (Foundation)**
-- [ ] PostgreSQL adatbázis létrehozása
-- [ ] Backend projekt struktúra felállítása
-- [ ] Database kapcsolat és connection pool
-- [ ] Environment variables setup
-- [ ] Alapvető middleware-ek (CORS, Helmet, Rate Limiting)
+- ✅ PostgreSQL adatbázis létrehozása
+- ✅ Backend projekt struktúra felállítása
+- ✅ Database kapcsolat és connection pool
+- ✅ Environment variables setup
+- ✅ Alapvető middleware-ek (CORS, Helmet, Rate Limiting)
 
 **Deliverable:** Működő backend skeleton, database kapcsolat
 
