@@ -554,8 +554,9 @@ const submitRegistration = async () => {
 | **Mailgun** | 5000 email/hó | $35/hó (50k email) | ✅ Jó alternatíva |
 | **AWS SES** | 62000 email/hó | $0.10/1000 email | ⚠️ Bonyolultabb setup |
 | **Gmail SMTP** | 500 email/nap | Ingyenes | ⚠️ Csak fejlesztéshez |
+| **Microware** | 100 email/nap | Benne van a hosting árban | self hosting |
 
-**Javasolt megoldás:** SendGrid (ingyenes tier kezdéshez)
+**Javasolt megoldás:** Microware
 
 #### 3.3.2 Email Sablonok (Templates)
 
@@ -659,99 +660,75 @@ const submitRegistration = async () => {
 </html>
 ```
 
-#### 3.3.3 Implementáció (Node.js)
+#### 3.3.3 Implementáció (PHP)
 
-```javascript
-// server/services/email.js
-const nodemailer = require('nodemailer');
-const handlebars = require('handlebars');
-const fs = require('fs').promises;
-const path = require('path');
+```php
+// app/Mail/ContactConfirmation.php
+namespace App\Mail;
 
-// Email transporter konfiguráció
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST, // smtp.sendgrid.net
-  port: process.env.SMTP_PORT, // 587
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER, // 'apikey'
-    pass: process.env.SMTP_PASSWORD // SendGrid API key
-  }
-});
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
 
-// Email sablon betöltése és renderelése
-async function renderEmailTemplate(templateName, data) {
-  const templatePath = path.join(__dirname, '..', 'templates', `${templateName}.html`);
-  const templateContent = await fs.readFile(templatePath, 'utf-8');
-  const template = handlebars.compile(templateContent);
-  return template(data);
-}
+class ContactConfirmation extends Mailable
+{
+    use Queueable, SerializesModels;
 
-// Email küldés
-async function sendEmail({ to, subject, template, data, from }) {
-  try {
-    const html = await renderEmailTemplate(template, data);
+    public $name;
+    public $messageBody;
 
-    const mailOptions = {
-      from: from || process.env.EMAIL_FROM || 'noreply@busaibarbara.hu',
-      to,
-      subject,
-      html
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('Email sending error:', error);
-    throw error;
-  }
-}
-
-// Kapcsolatfelvételi visszaigazolás
-async function sendContactConfirmation({ name, email, message }) {
-  return sendEmail({
-    to: email,
-    subject: 'Köszönjük megkeresését',
-    template: 'contact-confirmation',
-    data: { name, message }
-  });
-}
-
-// Regisztráció megerősítés
-async function sendRegistrationConfirmation({ full_name, email, event, registration_id }) {
-  return sendEmail({
-    to: email,
-    subject: `Sikeres regisztráció - ${event.title}`,
-    template: 'registration-confirmation',
-    data: {
-      full_name,
-      event_title: event.title,
-      event_date: event.event_date,
-      location: event.location,
-      address: event.address,
-      price: event.price,
-      registration_id
+    public function __construct($name, $messageBody)
+    {
+        $this->name = $name;
+        $this->messageBody = $messageBody;
     }
-  });
+
+    public function envelope()
+    {
+        return new Envelope(
+            subject: 'Köszönjük megkeresését',
+        );
+    }
+
+    public function content()
+    {
+        return new Content(
+            view: 'emails.contact.confirmation',
+        );
+    }
 }
 
-// Admin értesítés
-async function sendAdminNotification({ subject, template, data }) {
-  return sendEmail({
-    to: process.env.ADMIN_EMAIL,
-    subject,
-    template,
-    data
-  });
-}
+// app/Http/Controllers/ContactController.php
+namespace App\Http\Controllers;
 
-module.exports = {
-  sendEmail,
-  sendContactConfirmation,
-  sendRegistrationConfirmation,
-  sendAdminNotification
-};
+use App\Mail\ContactConfirmation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+
+class ContactController extends Controller
+{
+    public function submit(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|min:2|max:255',
+            'email' => 'required|email',
+            'message' => 'required|string|min:10|max:2000',
+        ]);
+
+        // ... store submission in database ...
+
+        // Send confirmation email to user
+        Mail::to($validated['email'])->send(new ContactConfirmation($validated['name'], $validated['message']));
+
+        // Send notification email to admin
+        // ...
+
+        return response()->json(['success' => true, 'message' => 'Üzenet elküldve!']);
+    }
+}
 ```
 
 ---
@@ -871,50 +848,74 @@ VALUES ('info@busaibarbara.hu', '$2b$10$...', 'Gállné Busai Barbara', 'admin')
 
 #### 4.2.3 Authentikáció
 
-```javascript
-// JWT alapú authentikáció
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+**Javasolt megoldás: JWT (JSON Web Tokens)**
 
-// Login endpoint
-router.post('/api/admin/login', async (req, res) => {
-  const { email, password } = req.body;
+Mivel a Lumen egy állapotmentes (stateless) micro-framework, a JWT egy kiváló választás az API végpontok védelmére.
 
-  const user = await pool.query(
-    'SELECT * FROM admin_users WHERE email = $1',
-    [email]
-  );
+```php
+// app/Http/Controllers/AuthController.php
+namespace App\Http\Controllers;
 
-  if (user.rows.length === 0) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+use App\Models\AdminUser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Firebase\JWT\JWT;
 
-  const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
-  if (!validPassword) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+class AuthController extends Controller
+{
+    public function login(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
 
-  const token = jwt.sign(
-    { id: user.rows[0].id, email: user.rows[0].email, role: user.rows[0].role },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
+        $user = AdminUser::where('email', $request->input('email'))->first();
 
-  res.json({ token, user: { email: user.rows[0].email, full_name: user.rows[0].full_name } });
-});
+        if (!$user || !Hash::check($request->input('password'), $user->password_hash)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
 
-// Auth middleware
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+        $payload = [
+            'sub' => $user->id,
+            'name' => $user->full_name,
+            'iat' => time(),
+            'exp' => time() + 60*60*7 // 7 days
+        ];
 
-  if (!token) return res.sendStatus(401);
+        $jwt = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
+        return response()->json(['token' => $jwt]);
+    }
+}
+
+// app/Http/Middleware/JwtMiddleware.php
+namespace App\Http\Middleware;
+
+use Closure;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
+class JwtMiddleware
+{
+    public function handle($request, Closure $next)
+    {
+        $token = $request->bearerToken();
+
+        if (!$token) {
+            return response()->json(['error' => 'Token not provided'], 401);
+        }
+
+        try {
+            $credentials = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Provided token is invalid.'], 400);
+        }
+
+        $request->auth = $credentials;
+
+        return $next($request);
+    }
 }
 ```
 
@@ -1050,18 +1051,17 @@ CREATE TABLE payments (
 
 ### 6.1 Backend Framework
 
-**Választás: Node.js + Express**
+**Választás: PHP + Lumen**
 
 **Indoklás:**
-- Illeszkedik a meglévő JavaScript ökoszisztémához (Vue.js)
-- Gyors fejlesztési ciklus
-- Nagy közösség és támogatás
-- Kiváló npm package ökoszisztéma
+- A Laravel pehelysúlyú, kifejezetten API-k és microservice-ek számára optimalizált változata.
+- Rendkívül gyors, így alacsony válaszidőt biztosít az API-nak.
+- Mivel a hosting környezet PHP-t támogat, a Lumen ideális választás.
+- A Laravel komponenseire épül, így a tudás nagy része átültethető.
 
 **Alternatívák:**
-- **Fastify:** Gyorsabb, modern, de kevésbé elterjedt
-- **NestJS:** Enterprise-grade, TypeScript-first, de overkill kis projekthez
-- **Python FastAPI:** Ha Python előny, de nem illeszkedik a stack-hez
+- **Laravel:** A teljes Laravel keretrendszer, ha a jövőben szükség lenne a benne rejlő extra funkciókra (pl. Blade, session, stb.).
+- **Slim:** Egy másik népszerű, minimalista micro-framework.
 
 ### 6.2 Adatbázis
 
@@ -1074,29 +1074,24 @@ CREATE TABLE payments (
 - Ingyenes és open-source
 - Gazdag feature set (triggerek, funkciók, indexek)
 
-### 6.3 Függőségek (npm packages)
+### 6.3 Függőségek (Composer)
 
 ```json
 {
-  "dependencies": {
-    "express": "^4.18.2",
-    "pg": "^8.11.0",
-    "dotenv": "^16.0.3",
-    "cors": "^2.8.5",
-    "helmet": "^7.0.0",
-    "express-validator": "^7.0.1",
-    "express-rate-limit": "^6.7.0",
-    "bcrypt": "^5.1.0",
-    "jsonwebtoken": "^9.0.0",
-    "nodemailer": "^6.9.3",
-    "handlebars": "^4.7.7",
-    "sanitize-html": "^2.11.0",
-    "compression": "^1.7.4",
-    "morgan": "^1.10.0",
-    "winston": "^3.8.2"
+  "require": {
+    "php": "^8.1",
+    "laravel/lumen-framework": "^10.0",
+    "illuminate/database": "^10.0",
+    "illuminate/validation": "^10.0",
+    "illuminate/mail": "^10.0",
+    "vlucas/phpdotenv": "^5.5",
+    "guzzlehttp/guzzle": "^7.2",
+    "firebase/php-jwt": "^6.3"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
+  "require-dev": {
+    "fakerphp/faker": "^1.9.1",
+    "mockery/mockery": "^1.4.4",
+    "phpunit/phpunit": "^10.0"
   }
 }
 ```
@@ -1106,29 +1101,46 @@ CREATE TABLE payments (
 ```bash
 # .env.example
 
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/barbivue_db
+APP_NAME=BarbiVue
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
 
-# Server
-PORT=3000
-NODE_ENV=development
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
 
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=barbivue_db
+DB_USERNAME=user
+DB_PASSWORD=password
 
-# Email (SendGrid)
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASSWORD=your-sendgrid-api-key
-EMAIL_FROM=noreply@busaibarbara.hu
+SESSION_DRIVER=cookie
+SESSION_LIFETIME=120
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.sendgrid.net
+MAIL_PORT=587
+MAIL_USERNAME=apikey
+MAIL_PASSWORD=your-sendgrid-api-key
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@busaibarbara.hu"
+MAIL_FROM_NAME="${APP_NAME}"
+
 ADMIN_EMAIL=info@busaibarbara.hu
 
-# Frontend URL (CORS)
 FRONTEND_URL=http://localhost:5173
 
-# Session
-SESSION_SECRET=your-session-secret-key
+SANCTUM_STATEFUL_DOMAINS="${FRONTEND_URL}"
 ```
 
 ---
@@ -1141,38 +1153,42 @@ SESSION_SECRET=your-session-secret-key
 
 ```
 ┌─────────────────┐
-│   Frontend      │  (Microware Hungary Kft.)
+│   Frontend      │  (pl. Vercel, Netlify)
 │   Vue.js SPA    │  - Static hosting
 │   Port: 443     │  - CDN
 └────────┬────────┘
          │ HTTPS
          ▼
 ┌─────────────────┐
-│   Backend API   │  (Microware Hungary Kft.)
-│   Express.js    │  - REST API
-│   Port: 3000    │  - Authentication
+│   Backend API   │  (PHP Hosting)
+│   Laravel       │  - REST API
+│   Port: 443     │  - Authentication
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│   PostgreSQL    │  (Microware Hungary Kft.)
-│   Database      │  - Managed DB
+│   PostgreSQL    │  (Managed Database)
+│   Database      │
 └─────────────────┘
 ```
 
 **Environment Variables beállítása:**
 
-*Microware (Backend):*
+*Backend (.env):*
 ```
-DATABASE_URL=postgresql://user:pass@host.neon.tech:5432/db
-JWT_SECRET=...
-SMTP_PASSWORD=...
-FRONTEND_URL=https://busaibarbara.vercel.app
+DB_CONNECTION=pgsql
+DB_HOST=...
+DB_DATABASE=...
+DB_USERNAME=...
+DB_PASSWORD=...
+
+SANCTUM_STATEFUL_DOMAINS=https://busaibarbara.hu
+FRONTEND_URL=https://busaibarbara.hu
 ```
 
-*Microware (Frontend):*
+*Frontend (.env):*
 ```
-VITE_API_URL=https://barbivue-api.railway.app
+VITE_API_URL=https://api.busaibarbara.hu
 ```
 
 ---
@@ -1182,139 +1198,72 @@ VITE_API_URL=https://barbivue-api.railway.app
 ### 8.1 Kritikus Biztonsági Intézkedések
 
 #### 8.1.1 SQL Injection Védelem
-```javascript
+```php
 // ❌ ROSSZ - SQL injection veszély
-pool.query(`SELECT * FROM users WHERE email = '${email}'`);
+DB::select("SELECT * FROM users WHERE email = '{$email}'");
 
-// ✅ JÓ - Parameterized query
-pool.query('SELECT * FROM users WHERE email = $1', [email]);
+// ✅ JÓ - Parameterized query (Eloquent ORM)
+$user = User::where('email', $email)->first();
+
+// ✅ JÓ - Parameterized query (Query Builder)
+$user = DB::table('users')->where('email', $email)->first();
 ```
 
 #### 8.1.2 XSS (Cross-Site Scripting) Védelem
-```javascript
-const sanitizeHtml = require('sanitize-html');
-
+```php
 // Input sanitization
-const cleanMessage = sanitizeHtml(req.body.message, {
-  allowedTags: [], // Csak plain text
-  allowedAttributes: {}
-});
+$message = htmlspecialchars($request->input('message'), ENT_QUOTES, 'UTF-8');
 ```
 
 #### 8.1.3 CSRF Védelem
-```javascript
-const csrf = require('csurf');
-const csrfProtection = csrf({ cookie: true });
 
-app.post('/api/contact', csrfProtection, async (req, res) => {
-  // CSRF token validated automatically
-});
-```
+Mivel a Lumen API állapotmentes (stateless) és JWT-t használ, a hagyományos, session-alapú CSRF védelem nem alkalmazható. A védelem a következő rétegekből áll:
+
+1.  **CORS (Cross-Origin Resource Sharing):** Megfelelő CORS beállításokkal csak a megbízható frontend domain-ről érkezhetnek kérések.
+2.  **SameSite Cookie Attribútum:** Bár a JWT-t általában a `Authorization` fejlécben küldik, ha mégis cookie-t használunk, a `SameSite=Strict` vagy `SameSite=Lax` beállítások segítenek a CSRF támadások kivédésében.
+3.  **Rövid lejáratú tokenek:** A JWT tokenek lejárati idejének rövidre állítása csökkenti a támadási felületet.
 
 #### 8.1.4 Rate Limiting
-```javascript
-const rateLimit = require('express-rate-limit');
 
-const contactLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 óra
-  max: 3, // max 3 request
-  message: 'Túl sok kérés. Próbálja újra 1 óra múlva.',
-  standardHeaders: true,
-  legacyHeaders: false
-});
+```php
+// app/Providers/RouteServiceProvider.php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
-app.post('/api/contact', contactLimiter, ...);
+public function boot()
+{
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->ip());
+    });
+
+    RateLimiter::for('contact', function (Request $request) {
+        return Limit::perHour(3)->by($request->ip());
+    });
+}
+
+// routes/api.php
+Route::post('/contact', [ContactController::class, 'submit'])->middleware('throttle:contact');
 ```
 
 #### 8.1.5 CORS Konfiguráció
-```javascript
-const cors = require('cors');
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // Csak a saját domain
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+```php
+// config/cors.php
+
+return [
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'allowed_methods' => ['*'],
+    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:5173')],
+    'allowed_origins_patterns' => [],
+    'allowed_headers' => ['*'],
+    'exposed_headers' => [],
+    'max_age' => 0,
+    'supports_credentials' => true,
+];
 ```
 
-#### 8.1.6 Helmet.js (HTTP Headers biztonság)
-```javascript
-const helmet = require('helmet');
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
-```
-
-#### 8.1.7 Environment Variables Kezelés
-```javascript
-// ❌ ROSSZ - Sensitive data a kódban
-const apiKey = 'sk_live_123456789';
-
-// ✅ JÓ - .env fájlból betöltés
-const apiKey = process.env.STRIPE_API_KEY;
-
-// .gitignore-ba MINDIG berakni:
-// .env
-// .env.local
-```
-
-#### 8.1.8 Jelszó Hash (bcrypt)
-```javascript
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-
-// Jelszó hash-elése
-const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
-
-// Jelszó ellenőrzése
-const isValid = await bcrypt.compare(plainPassword, hashedPassword);
-```
-
-#### 8.1.9 Database User Permissions
-```sql
--- Dedikált database user létrehozása korlátozott jogokkal
-CREATE USER barbivue_app WITH PASSWORD 'strong_random_password_here';
-
--- Csak a szükséges jogok megadása
-GRANT CONNECT ON DATABASE barbivue_db TO barbivue_app;
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO barbivue_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO barbivue_app;
-
--- DELETE jog NEM adva (admin táblák védelmére)
--- ALTER, DROP, CREATE jogok NEM adva
-
--- Jövőbeli táblákra is
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-GRANT SELECT, INSERT, UPDATE ON TABLES TO barbivue_app;
-```
-
-#### 8.1.10 HTTPS Only
-```javascript
-// Production-ben HTTPS kényszerítés
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.header('x-forwarded-proto') !== 'https') {
-      res.redirect(`https://${req.header('host')}${req.url}`);
-    } else {
-      next();
-    }
-  });
-}
-```
 
 ### 8.2 Biztonsági Checklist
 
@@ -2096,7 +2045,7 @@ router.post('/contact', contactLimiter, ...);
 ```markdown
 # BarbiVue - Backend
 
-A weboldal backend rendszere Node.js + PostgreSQL stack-kel.
+A weboldal backend rendszere PHP + Lumen + PostgreSQL stack-kel.
 
 ## Features
 
@@ -2109,17 +2058,17 @@ A weboldal backend rendszere Node.js + PostgreSQL stack-kel.
 
 ## Tech Stack
 
-- **Backend:** Node.js + Express.js
+- **Backend:** PHP + Lumen
 - **Database:** PostgreSQL 15+
-- **Email:** SendGrid / Nodemailer
-- **Auth:** JWT (jsonwebtoken)
-- **Validation:** express-validator
-- **Security:** Helmet, CORS, Rate Limiting
+- **Email:** SendGrid
+- **Auth:** JWT (firebase/php-jwt)
+- **Validation:** illuminate/validation
 
 ## Setup
 
 ### Prerequisites
-- Node.js 18+
+- PHP 8.1+
+- Composer
 - PostgreSQL 15+
 - SendGrid API key (or SMTP credentials)
 
@@ -2128,7 +2077,7 @@ A weboldal backend rendszere Node.js + PostgreSQL stack-kel.
 1. Clone repository
 2. Install dependencies:
    ```bash
-   npm install
+   composer install
    ```
 
 3. Setup environment variables:
@@ -2144,27 +2093,15 @@ A weboldal backend rendszere Node.js + PostgreSQL stack-kel.
 
 5. Run migrations:
    ```bash
-   npm run migrate
+   php artisan migrate
    ```
 
 6. Start development server:
    ```bash
-   npm run dev
+   php -S localhost:8000 -t public
    ```
 
-API will be available at `http://localhost:3000`
-
-## API Documentation
-
-Full API documentation available at `/api-docs` (Swagger UI)
-
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment instructions.
-
-## License
-
-Private - © 2025 Gállné Busai Barbara
+API will be available at `http://localhost:8000`
 
 ---
 
@@ -2196,405 +2133,25 @@ Private - © 2025 Gállné Busai Barbara
 
 ---
 
-### 17.2 ROI (Return on Investment)
-
-**Költségek:**
-- Fejlesztés: 640k - 1.5M Ft (Phase 1 MVP)
-- Hosting: 5-10 USD/hó (~€5-10)
-- Karbantartás: 200-500k Ft/év
-
-**Előnyök:**
-- ⏱️ **Időmegtakarítás:** 10-15 óra/hó admin munka (manuális email, Excel kezelés helyett)
-- 📈 **Több regisztráció:** Könnyebb jelentkezés = 20-30% növekedés várható
-- 💼 **Professzionalizmus:** Komoly, megbízható kép
-- 📊 **Adatvezérelt döntések:** Analytics alapján optimalizálás
-- 🔒 **Biztonság:** GDPR compliance, data protection
-
-**Megtérülés:** 6-12 hónap (nagyobb események, hatékonyabb működés)
-
----
-
-### 17.3 Végső Javaslat
-
-**Kezdj kicsiben, skálázz igény szerint:**
-
-1. **Most (Week 1-4):** Kapcsolat + Események (MVP)
-2. **1-2 hónap múlva:** CMS + Admin
-3. **3-6 hónap múlva:** Analytics, Newsletter, Extra funkciók
-
-**Javaslat:** Kezdj a **Phase 1 MVP**-vel (640k-1.5M Ft), teszteld éles használatban, majd bővítsd igény szerint.
-
----
-
 ## Appendix
 
 ### A. Hasznos Linkek
 
 **Dokumentáció:**
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Express.js Guide](https://expressjs.com/en/guide/routing.html)
+- [Lumen Documentation](https://lumen.laravel.com/docs/10.x)
 - [SendGrid API Docs](https://docs.sendgrid.com/)
-- [JWT Best Practices](https://tools.ietf.org/html/rfc8725)
-
-**Deployment:**
-- [Railway Docs](https://docs.railway.app/)
-- [Vercel Docs](https://vercel.com/docs)
-- [Neon Documentation](https://neon.tech/docs/)
+- [JWT (JSON Web Tokens)](https://jwt.io/)
 
 **Security:**
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Node.js Security Checklist](https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html)
+- [PHP Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/PHP_Configuration_Cheat_Sheet.html)
 
 ---
 
-### B. Database Schema Full SQL
+## License
 
-Teljes adatbázis séma (copy-paste ready):
-
-```sql
--- Full database schema for BarbiVue backend
--- Version: 1.0
--- Date: 2025-10-01
-
--- Enable extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Set timezone
-SET timezone = 'Europe/Budapest';
-
--- ========================================
--- TABLES
--- ========================================
-
--- Contact submissions
-CREATE TABLE contact_submissions (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    message TEXT NOT NULL,
-    subject VARCHAR(255),
-    status VARCHAR(50) DEFAULT 'new', -- new, read, replied, spam
-    ip_address INET,
-    user_agent TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
-);
-
--- Events
-CREATE TABLE events (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT,
-    event_date DATE NOT NULL,
-    event_end_date DATE,
-    location VARCHAR(255) NOT NULL,
-    address TEXT,
-    image_url VARCHAR(500),
-    max_participants INTEGER,
-    registration_deadline DATE,
-    price DECIMAL(10, 2) DEFAULT 0,
-    status VARCHAR(50) DEFAULT 'upcoming', -- upcoming, ongoing, completed, cancelled
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT valid_dates CHECK (event_end_date IS NULL OR event_end_date >= event_date),
-    CONSTRAINT valid_registration_deadline CHECK (registration_deadline IS NULL OR registration_deadline <= event_date)
-);
-
--- Event registrations
-CREATE TABLE event_registrations (
-    id SERIAL PRIMARY KEY,
-    event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    full_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    age INTEGER,
-    dietary_restrictions TEXT,
-    special_needs TEXT,
-    accommodation_needed BOOLEAN DEFAULT false,
-    status VARCHAR(50) DEFAULT 'pending', -- pending, confirmed, cancelled, attended
-    payment_status VARCHAR(50) DEFAULT 'unpaid', -- unpaid, paid, refunded
-    notes TEXT,
-    ip_address INET,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    CONSTRAINT valid_phone CHECK (phone ~* '^(\+36|06)[0-9]{8,}$'),
-    CONSTRAINT valid_age CHECK (age IS NULL OR (age >= 1 AND age <= 120))
-);
-
--- Admin users
-CREATE TABLE admin_users (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255),
-    role VARCHAR(50) DEFAULT 'editor', -- admin, editor
-    last_login TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
-);
-
--- Content sections
-CREATE TABLE content_sections (
-    id SERIAL PRIMARY KEY,
-    section_key VARCHAR(100) UNIQUE NOT NULL,
-    content JSONB NOT NULL,
-    version INTEGER DEFAULT 1,
-    is_published BOOLEAN DEFAULT true,
-    last_edited_by VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Content history
-CREATE TABLE content_history (
-    id SERIAL PRIMARY KEY,
-    section_key VARCHAR(100) NOT NULL,
-    content JSONB NOT NULL,
-    version INTEGER NOT NULL,
-    edited_by VARCHAR(255),
-    edit_description VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Newsletter subscribers
-CREATE TABLE newsletter_subscribers (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    full_name VARCHAR(255),
-    status VARCHAR(50) DEFAULT 'active', -- active, unsubscribed, bounced
-    subscription_source VARCHAR(100),
-    verified BOOLEAN DEFAULT false,
-    verification_token VARCHAR(255),
-    unsubscribe_token VARCHAR(255) UNIQUE,
-    subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    unsubscribed_at TIMESTAMP,
-
-    CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
-);
-
--- Testimonials
-CREATE TABLE testimonials (
-    id SERIAL PRIMARY KEY,
-    author_name VARCHAR(255) NOT NULL,
-    event_id INTEGER REFERENCES events(id),
-    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-    testimonial TEXT NOT NULL,
-    is_approved BOOLEAN DEFAULT false,
-    is_featured BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    approved_at TIMESTAMP
-);
-
--- Analytics events
-CREATE TABLE analytics_events (
-    id SERIAL PRIMARY KEY,
-    event_type VARCHAR(100) NOT NULL,
-    event_data JSONB,
-    page_path VARCHAR(500),
-    session_id VARCHAR(255),
-    ip_address INET,
-    user_agent TEXT,
-    referrer TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- User consents (GDPR)
-CREATE TABLE user_consents (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    consent_type VARCHAR(50) NOT NULL,
-    consented BOOLEAN DEFAULT true,
-    consent_text TEXT,
-    ip_address INET,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ========================================
--- INDEXES
--- ========================================
-
--- Contact submissions
-CREATE INDEX idx_contact_status ON contact_submissions(status);
-CREATE INDEX idx_contact_created_at ON contact_submissions(created_at DESC);
-CREATE INDEX idx_contact_email ON contact_submissions(email);
-
--- Events
-CREATE INDEX idx_events_date ON events(event_date DESC);
-CREATE INDEX idx_events_status ON events(status);
-CREATE INDEX idx_events_slug ON events(slug);
-
--- Event registrations
-CREATE INDEX idx_registrations_event ON event_registrations(event_id);
-CREATE INDEX idx_registrations_status ON event_registrations(status);
-CREATE INDEX idx_registrations_email ON event_registrations(email);
-CREATE UNIQUE INDEX idx_unique_registration ON event_registrations(event_id, email)
-WHERE status != 'cancelled';
-
--- Content
-CREATE INDEX idx_content_key ON content_sections(section_key);
-CREATE INDEX idx_content_published ON content_sections(is_published);
-CREATE INDEX idx_history_key ON content_history(section_key, version DESC);
-
--- Newsletter
-CREATE INDEX idx_newsletter_status ON newsletter_subscribers(status);
-CREATE INDEX idx_newsletter_email ON newsletter_subscribers(email);
-
--- Testimonials
-CREATE INDEX idx_testimonials_approved ON testimonials(is_approved, created_at DESC);
-CREATE INDEX idx_testimonials_featured ON testimonials(is_featured) WHERE is_featured = true;
-
--- Analytics
-CREATE INDEX idx_analytics_type ON analytics_events(event_type, created_at DESC);
-CREATE INDEX idx_analytics_session ON analytics_events(session_id);
-CREATE INDEX idx_analytics_date ON analytics_events(DATE(created_at));
-
--- Consents
-CREATE INDEX idx_consents_email ON user_consents(email);
-
--- ========================================
--- FUNCTIONS
--- ========================================
-
--- Check if event is full
-CREATE OR REPLACE FUNCTION is_event_full(p_event_id INTEGER)
-RETURNS BOOLEAN AS $$
-DECLARE
-    v_max_participants INTEGER;
-    v_current_count INTEGER;
-BEGIN
-    SELECT max_participants INTO v_max_participants
-    FROM events WHERE id = p_event_id;
-
-    IF v_max_participants IS NULL THEN
-        RETURN FALSE;
-    END IF;
-
-    SELECT COUNT(*) INTO v_current_count
-    FROM event_registrations
-    WHERE event_id = p_event_id
-    AND status IN ('pending', 'confirmed');
-
-    RETURN v_current_count >= v_max_participants;
-END;
-$$ LANGUAGE plpgsql;
-
--- Update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Save content history
-CREATE OR REPLACE FUNCTION save_content_history()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO content_history (section_key, content, version, edited_by)
-    VALUES (NEW.section_key, NEW.content, NEW.version, NEW.last_edited_by);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- ========================================
--- TRIGGERS
--- ========================================
-
-CREATE TRIGGER update_contact_updated_at BEFORE UPDATE ON contact_submissions
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_registrations_updated_at BEFORE UPDATE ON event_registrations
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER save_content_history_trigger
-AFTER UPDATE ON content_sections
-FOR EACH ROW
-WHEN (OLD.content IS DISTINCT FROM NEW.content)
-EXECUTE FUNCTION save_content_history();
-
--- ========================================
--- MATERIALIZED VIEWS
--- ========================================
-
-CREATE MATERIALIZED VIEW daily_analytics AS
-SELECT
-    DATE(created_at) as date,
-    event_type,
-    COUNT(*) as event_count,
-    COUNT(DISTINCT session_id) as unique_sessions,
-    COUNT(DISTINCT ip_address) as unique_visitors
-FROM analytics_events
-WHERE created_at >= CURRENT_DATE - INTERVAL '90 days'
-GROUP BY DATE(created_at), event_type;
-
-CREATE UNIQUE INDEX idx_daily_analytics ON daily_analytics(date, event_type);
-
--- ========================================
--- SEED DATA
--- ========================================
-
--- Insert initial events from database.json
-INSERT INTO events (title, slug, description, event_date, location, image_url, status)
-VALUES
-  (
-    'Krízis és kegyelem lelki hétvége',
-    'krizis-es-kegyelem-2025-02',
-    'Ez a program lehetőséget biztosít arra, hogy megértsük, hogyan működnek a traumák az életünkben...',
-    '2025-02-07',
-    'Pécs',
-    '/assets/img/kriziseskegyelem.png',
-    'upcoming'
-  ),
-  (
-    'Boldogok a békességszerzők',
-    'boldogok-a-bekessegszerzok-2025-03',
-    'A Jézusi konfliktusmegoldás a béke és a bűnbocsánat evangéliumára épül...',
-    '2025-03-14',
-    'Budapest, Krisztus Király Missziós Központ',
-    '/assets/img/bekessegszerzok.png',
-    'upcoming'
-  ),
-  (
-    'Konfliktuskezelő műhely',
-    'konfliktuskezelo-muhely-2025-06',
-    'A békés konfliktuskezelés módszerei a mindennapokban.',
-    '2025-06-20',
-    'Online (Zoom)',
-    '/assets/img/konfliktus.png',
-    'upcoming'
-  );
-
--- Insert content sections from database.json
-INSERT INTO content_sections (section_key, content) VALUES
-('hero', '{"title": "A bizalom csodákat tesz.", "subtitle": "Szeretettel köszöntöm..."}'),
-('about', '{"title": "Tanulmányaim", "sections": []}'),
-('services', '[]'),
-('princesses', '{"id": 1, "title": "Áldott királylányok"}'),
-('contact', '{"p1": "Ha kérdése van...", "email": "info@busaibarbara.hu"}'),
-('footer', '{"copyright": "© 2025 Gállné Busai Barbara"}');
-
--- ========================================
--- PERMISSIONS (Create limited user)
--- ========================================
-
--- CREATE USER barbivue_app WITH PASSWORD 'change-this-password';
--- GRANT CONNECT ON DATABASE barbivue_db TO barbivue_app;
--- GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO barbivue_app;
--- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO barbivue_app;
--- ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE ON TABLES TO barbivue_app;
-```
+Private - © 2025 Gállné Busai Barbara
 
 ---
 
